@@ -1,42 +1,70 @@
-type PieceGrid = [[usize; 4]; 4];
+pub type PieceGrid = [[bool; 4]; 4];
 
 pub const PIECE_GRIDS: [PieceGrid; 7] = [
     // O
-    [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]],
+    [
+        [false, false, false, false],
+        [false, true, true, false],
+        [false, true, true, false],
+        [false, false, false, false],
+    ],
     // I
-    [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
+    [
+        [false, true, false, false],
+        [false, true, false, false],
+        [false, true, false, false],
+        [false, true, false, false],
+    ],
     // L
-    [[0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0]],
+    [
+        [false, false, false, false],
+        [false, true, false, false],
+        [false, true, false, false],
+        [false, true, true, false],
+    ],
     // S
-    [[0, 0, 0, 0], [0, 0, 1, 1], [0, 1, 1, 0], [0, 0, 0, 0]],
+    [
+        [false, false, false, false],
+        [false, false, true, true],
+        [false, true, true, false],
+        [false, false, false, false],
+    ],
     // Z
-    [[0, 0, 0, 0], [0, 1, 1, 0], [0, 0, 1, 1], [0, 0, 0, 0]],
+    [
+        [false, false, false, false],
+        [false, true, true, false],
+        [false, false, true, true],
+        [false, false, false, false],
+    ],
     // J
-    [[0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 1, 1, 0]],
+    [
+        [false, false, false, false],
+        [false, false, true, false],
+        [false, false, true, false],
+        [false, true, true, false],
+    ],
     // T
-    [[0, 0, 0, 0], [0, 1, 1, 1], [0, 0, 1, 0], [0, 0, 0, 0]],
+    [
+        [false, false, false, false],
+        [false, true, true, true],
+        [false, false, true, false],
+        [false, false, false, false],
+    ],
 ];
 
 #[derive(Clone)]
 pub struct PlayerPiece {
     pub piece_grid: PieceGrid,
-    // Position of top left corner
-    // Note that these can be outside the grid.
+    pub color: u8,
     pub x: isize,
     pub y: isize,
 }
 
 impl PlayerPiece {
-    pub fn new_random_piece(piece_index: usize, color: usize) -> Self {
-        let base_grid = PIECE_GRIDS[piece_index];
-        let mut piece_grid = [[0usize; 4]; 4];
-        for r in 0..4 {
-            for c in 0..4 {
-                piece_grid[r][c] = base_grid[r][c] * color;
-            }
-        }
+    pub fn new_random_piece(piece_index: usize, color: u8) -> Self {
         PlayerPiece {
-            piece_grid,
+            piece_grid: PIECE_GRIDS[piece_index],
+            color,
             x: 3,
             y: 0,
         }
@@ -44,7 +72,7 @@ impl PlayerPiece {
 }
 
 pub fn rotate_piece_grid_clockwise(grid: PieceGrid) -> PieceGrid {
-    let mut out = [[0usize; 4]; 4];
+    let mut out = [[false; 4]; 4];
     for r in 0..4 {
         for c in 0..4 {
             out[c][3 - r] = grid[r][c];

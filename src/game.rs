@@ -1,12 +1,12 @@
 use crate::{
-    board::{BOARD, BOARD_HEIGHT, BOARD_WIDTH, empty_board, render_board},
+    board::{BOARD_HEIGHT, BOARD_WIDTH, Board, Cell, empty_board, render_board},
     piece::{PlayerPiece, rotate_piece_grid_clockwise},
 };
 use macroquad::rand::{gen_range, srand};
 use macroquad::{miniquad::date::now, prelude::*};
 
 pub struct Game {
-    pub board: BOARD,
+    pub board: Board,
     pub player_piece: PlayerPiece,
     pub score: usize,
 }
@@ -25,21 +25,23 @@ impl Game {
 
     fn spawn_piece() -> PlayerPiece {
         let piece_index = gen_range(0, 7) as usize;
-        let color = gen_range(1, 8) as usize;
+        let color = gen_range(1, 8) as u8;
         PlayerPiece::new_random_piece(piece_index, color)
     }
 
     pub fn render(&self) {
-        let mut board_with_player: BOARD = self.board;
+        let mut board_with_player: Board = self.board;
         for dr in 0..4 {
             for dc in 0..4 {
-                // Note that the position of the player can actually be off the grid
-                if (0..BOARD_HEIGHT as isize).contains(&(self.player_piece.y + dr))
-                    && (0..BOARD_WIDTH as isize).contains(&(self.player_piece.x + dc))
+                if !self.player_piece.piece_grid[dr as usize][dc as usize] {
+                    continue;
+                }
+                let r = self.player_piece.y + dr;
+                let c = self.player_piece.x + dc;
+                if (0..BOARD_HEIGHT as isize).contains(&r) && (0..BOARD_WIDTH as isize).contains(&c)
                 {
-                    board_with_player[(self.player_piece.y + dr) as usize]
-                        [(self.player_piece.x + dc) as usize] +=
-                        self.player_piece.piece_grid[dr as usize][dc as usize];
+                    board_with_player[r as usize][c as usize] =
+                        Cell::Filled(self.player_piece.color);
                 }
             }
         }
@@ -88,8 +90,8 @@ impl Game {
             .iter()
             .enumerate()
             .any(|(dr, row)| {
-                row.iter().enumerate().any(|(dc, val)| {
-                    if val == &0 {
+                row.iter().enumerate().any(|(dc, filled)| {
+                    if !filled {
                         return false;
                     }
                     let r = self.player_piece.y + dr as isize;
@@ -97,7 +99,7 @@ impl Game {
                     if r < 0 || r >= BOARD_HEIGHT as isize || c < 0 || c >= BOARD_WIDTH as isize {
                         return true;
                     }
-                    self.board[r as usize][c as usize] > 0
+                    self.board[r as usize][c as usize] != Cell::Empty
                 })
             })
     }
@@ -116,13 +118,14 @@ impl Game {
     fn apply_player_to_board(&mut self) {
         for dr in 0..4 {
             for dc in 0..4 {
-                // Note that the position of the player can actually be off the grid
-                if (0..BOARD_HEIGHT as isize).contains(&(self.player_piece.y + dr))
-                    && (0..BOARD_WIDTH as isize).contains(&(self.player_piece.x + dc))
+                if !self.player_piece.piece_grid[dr as usize][dc as usize] {
+                    continue;
+                }
+                let r = self.player_piece.y + dr;
+                let c = self.player_piece.x + dc;
+                if (0..BOARD_HEIGHT as isize).contains(&r) && (0..BOARD_WIDTH as isize).contains(&c)
                 {
-                    self.board[(self.player_piece.y + dr) as usize]
-                        [(self.player_piece.x + dc) as usize] +=
-                        self.player_piece.piece_grid[dr as usize][dc as usize];
+                    self.board[r as usize][c as usize] = Cell::Filled(self.player_piece.color);
                 }
             }
         }
@@ -132,7 +135,7 @@ impl Game {
         let mut new_board = empty_board();
         let mut new_y = BOARD_HEIGHT - 1;
         for old_y in (0..BOARD_HEIGHT).rev() {
-            if self.board[old_y].iter().all(|&val| val > 0) {
+            if self.board[old_y].iter().all(|&cell| cell != Cell::Empty) {
                 continue;
             }
             new_board[new_y] = self.board[old_y];
