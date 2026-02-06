@@ -107,6 +107,7 @@ impl Game {
         if collided {
             self.apply_player_to_board();
             self.player_piece = Self::spawn_piece();
+            self.clear_rows_and_shift_squares_down();
         }
     }
 
@@ -123,5 +124,21 @@ impl Game {
                 }
             }
         }
+    }
+
+    fn clear_rows_and_shift_squares_down(&mut self) {
+        let mut new_board = empty_board();
+        let mut new_y = BOARD_HEIGHT - 1;
+        for old_y in (0..BOARD_HEIGHT).rev() {
+            if self.board[old_y].iter().all(|&val| val > 0) {
+                continue;
+            }
+            new_board[new_y] = self.board[old_y];
+            if new_y == 0 {
+                break;
+            }
+            new_y -= 1;
+        }
+        self.board = new_board;
     }
 }
