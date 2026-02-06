@@ -138,6 +138,8 @@ impl Game {
         let mut new_y = BOARD_HEIGHT - 1;
         for old_y in (0..BOARD_HEIGHT).rev() {
             if self.board[old_y].iter().all(|&cell| cell != Cell::Empty) {
+                // Increase score by one for each row cleared
+                self.score += 1;
                 continue;
             }
             new_board[new_y] = self.board[old_y];
@@ -147,6 +149,5 @@ impl Game {
             new_y -= 1;
         }
         self.board = new_board;
-        self.score += 1;
     }
 }
