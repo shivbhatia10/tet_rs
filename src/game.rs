@@ -8,6 +8,7 @@ use macroquad::{miniquad::date::now, prelude::*};
 pub struct Game {
     pub board: BOARD,
     pub player_piece: PlayerPiece,
+    pub score: usize,
 }
 
 const WALL_KICKS: [[isize; 2]; 4] = [[0, 1], [1, 0], [0, -1], [-1, 0]];
@@ -18,6 +19,7 @@ impl Game {
         Game {
             board: empty_board(),
             player_piece: Self::spawn_piece(),
+            score: 0,
         }
     }
 
@@ -140,5 +142,6 @@ impl Game {
             new_y -= 1;
         }
         self.board = new_board;
+        self.score += 1;
     }
 }
