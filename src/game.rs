@@ -155,4 +155,8 @@ impl Game {
         }
         self.board = new_board;
     }
+
+    pub fn drop_interval(&self) -> f64 {
+        0.2 + 0.8 * (-0.1 * self.score as f64).exp()
+    }
 }

@@ -36,7 +36,7 @@ async fn main() {
                 game.rotate_player();
             }
 
-            if now - last_drop >= 1.0 {
+            if now - last_drop >= game.drop_interval() {
                 game.move_player_down();
                 last_drop = now;
             }
