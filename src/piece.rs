@@ -19,6 +19,7 @@ pub const PIECE_GRIDS: [PieceGrid; 7] = [
     [[0, 0, 0, 0], [0, 1, 1, 1], [0, 0, 1, 0], [0, 0, 0, 0]],
 ];
 
+#[derive(Clone)]
 pub struct PlayerPiece {
     pub piece_grid: PieceGrid,
     // Position of top left corner
@@ -35,58 +36,6 @@ impl PlayerPiece {
             x: 3,
             y: 0,
         }
-    }
-
-    /// The smallest non-zero x value in the local piece grid.
-    pub fn min_x(&self) -> usize {
-        let mut min_x: usize = 5;
-        for row in 0..4 {
-            for col in 0..4 {
-                if self.piece_grid[row][col] > 0 {
-                    min_x = min(min_x, col as usize);
-                }
-            }
-        }
-        min_x
-    }
-
-    /// The largest non-zero x value in the local piece grid.
-    pub fn max_x(&self) -> usize {
-        let mut max_x: usize = 0;
-        for row in 0..4 {
-            for col in 0..4 {
-                if self.piece_grid[row][col] > 0 {
-                    max_x = max(max_x, col as usize);
-                }
-            }
-        }
-        max_x
-    }
-
-    /// The smallest non-zero y value in the local piece grid.
-    pub fn min_y(&self) -> usize {
-        let mut min_y: usize = 5;
-        for row in 0..4 {
-            for col in 0..4 {
-                if self.piece_grid[row][col] > 0 {
-                    min_y = min(min_y, row as usize);
-                }
-            }
-        }
-        min_y
-    }
-
-    /// The largest non-zero y value in the local piece grid.
-    pub fn max_y(&self) -> usize {
-        let mut max_y: usize = 0;
-        for row in 0..4 {
-            for col in 0..4 {
-                if self.piece_grid[row][col] > 0 {
-                    max_y = max(max_y, row as usize);
-                }
-            }
-        }
-        max_y
     }
 }
 
