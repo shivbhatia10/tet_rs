@@ -1,3 +1,5 @@
+use macroquad::prelude::Color;
+
 pub type PieceGrid = [[bool; 4]; 4];
 
 pub const PIECE_GRIDS: [PieceGrid; 7] = [
@@ -55,13 +57,13 @@ pub const PIECE_GRIDS: [PieceGrid; 7] = [
 #[derive(Clone)]
 pub struct PlayerPiece {
     pub piece_grid: PieceGrid,
-    pub color: u8,
+    pub color: Color,
     pub x: isize,
     pub y: isize,
 }
 
 impl PlayerPiece {
-    pub fn new_random_piece(piece_index: usize, color: u8) -> Self {
+    pub fn new_random_piece(piece_index: usize, color: Color) -> Self {
         PlayerPiece {
             piece_grid: PIECE_GRIDS[piece_index],
             color,

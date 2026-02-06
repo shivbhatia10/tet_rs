@@ -23,9 +23,11 @@ impl Game {
         }
     }
 
+    const PIECE_COLORS: [Color; 7] = [RED, GREEN, BLUE, GOLD, ORANGE, PURPLE, MAGENTA];
+
     fn spawn_piece() -> PlayerPiece {
         let piece_index = gen_range(0, 7) as usize;
-        let color = gen_range(1, 8) as u8;
+        let color = Self::PIECE_COLORS[gen_range(0, 7) as usize];
         PlayerPiece::new_random_piece(piece_index, color)
     }
 

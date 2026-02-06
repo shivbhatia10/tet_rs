@@ -6,7 +6,7 @@ pub const BOARD_WIDTH: usize = 10;
 pub enum Cell {
     #[default]
     Empty,
-    Filled(u8),
+    Filled(Color),
 }
 
 pub type Board = [[Cell; BOARD_WIDTH]; BOARD_HEIGHT];
@@ -38,13 +38,6 @@ pub fn render_board(board: Board) {
 fn cell_to_color(cell: Cell) -> Color {
     match cell {
         Cell::Empty => WHITE,
-        Cell::Filled(1) => RED,
-        Cell::Filled(2) => GREEN,
-        Cell::Filled(3) => BLUE,
-        Cell::Filled(4) => GOLD,
-        Cell::Filled(5) => ORANGE,
-        Cell::Filled(6) => PURPLE,
-        Cell::Filled(7) => MAGENTA,
-        Cell::Filled(_) => DARKGRAY,
+        Cell::Filled(color) => color,
     }
 }
