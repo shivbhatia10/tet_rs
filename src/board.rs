@@ -34,9 +34,10 @@ fn val_to_color(val: usize) -> Color {
         1 => RED,
         2 => GREEN,
         3 => BLUE,
-        4 => YELLOW,
+        4 => GOLD,
         5 => ORANGE,
         6 => PURPLE,
+        7 => MAGENTA,
         x => panic!("Invalid color val: {x}"),
     }
 }

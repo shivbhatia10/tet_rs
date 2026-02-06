@@ -2,7 +2,8 @@ use crate::{
     board::{BOARD, BOARD_HEIGHT, BOARD_WIDTH, empty_board, render_board},
     piece::{PlayerPiece, rotate_piece_grid_clockwise},
 };
-use macroquad::prelude::*;
+use macroquad::rand::{gen_range, srand};
+use macroquad::{miniquad::date::now, prelude::*};
 
 pub struct Game {
     pub board: BOARD,
@@ -13,10 +14,17 @@ const WALL_KICKS: [[isize; 2]; 4] = [[0, 1], [1, 0], [0, -1], [-1, 0]];
 
 impl Game {
     pub fn new() -> Self {
+        srand(now() as u64);
         Game {
             board: empty_board(),
-            player_piece: PlayerPiece::new_random_piece(),
+            player_piece: Self::spawn_piece(),
         }
+    }
+
+    fn spawn_piece() -> PlayerPiece {
+        let piece_index = gen_range(0, 7) as usize;
+        let color = gen_range(1, 8) as usize;
+        PlayerPiece::new_random_piece(piece_index, color)
     }
 
     pub fn render(&self) {
@@ -98,7 +106,7 @@ impl Game {
         self.player_piece.y -= 1;
         if collided {
             self.apply_player_to_board();
-            self.player_piece = PlayerPiece::new_random_piece();
+            self.player_piece = Self::spawn_piece();
         }
     }
 

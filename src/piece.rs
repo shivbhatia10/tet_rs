@@ -1,5 +1,3 @@
-use std::cmp::{max, min};
-
 type PieceGrid = [[usize; 4]; 4];
 
 pub const PIECE_GRIDS: [PieceGrid; 7] = [
@@ -29,10 +27,16 @@ pub struct PlayerPiece {
 }
 
 impl PlayerPiece {
-    pub fn new_random_piece() -> Self {
-        // let piece_grid_index = gen_range(0, 6) as usize;
+    pub fn new_random_piece(piece_index: usize, color: usize) -> Self {
+        let base_grid = PIECE_GRIDS[piece_index];
+        let mut piece_grid = [[0usize; 4]; 4];
+        for r in 0..4 {
+            for c in 0..4 {
+                piece_grid[r][c] = base_grid[r][c] * color;
+            }
+        }
         PlayerPiece {
-            piece_grid: PIECE_GRIDS[5],
+            piece_grid,
             x: 3,
             y: 0,
         }
