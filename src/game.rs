@@ -81,6 +81,7 @@ impl Game {
     }
 
     pub fn rotate_player(&mut self) {
+        let old_grid = self.player_piece.piece_grid.clone();
         self.player_piece.piece_grid = rotate_piece_grid_clockwise(self.player_piece.piece_grid);
         if !self.has_collision() {
             return;
@@ -94,7 +95,8 @@ impl Game {
             self.player_piece.x -= dx;
             self.player_piece.y -= dy;
         }
-        panic!("Unfixable position")
+        // This state seems impossible but if it happens, revert to old
+        self.player_piece.piece_grid = old_grid;
     }
 
     fn has_collision(&self) -> bool {
