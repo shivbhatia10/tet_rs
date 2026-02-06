@@ -9,6 +9,7 @@ pub struct Game {
     pub board: Board,
     pub player_piece: PlayerPiece,
     pub score: usize,
+    pub game_over: bool,
 }
 
 const WALL_KICKS: [[isize; 2]; 4] = [[0, 1], [1, 0], [0, -1], [-1, 0]];
@@ -20,6 +21,7 @@ impl Game {
             board: empty_board(),
             player_piece: Self::spawn_piece(),
             score: 0,
+            game_over: false,
         }
     }
 
@@ -111,6 +113,9 @@ impl Game {
         let collided = self.has_collision();
         self.player_piece.y -= 1;
         if collided {
+            if self.player_piece.y == 0 {
+                self.game_over = true;
+            }
             self.apply_player_to_board();
             self.player_piece = Self::spawn_piece();
             self.clear_rows_and_shift_squares_down();
