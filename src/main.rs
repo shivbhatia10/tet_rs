@@ -8,15 +8,15 @@ use crate::game::Game;
 fn window_conf() -> Conf {
     Conf {
         window_title: "tet_rs".to_owned(),
-        window_width: 250,
-        window_height: 1000,
+        window_width: 200,
+        window_height: 800,
         ..Default::default()
     }
 }
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut game = Game::new();
+    let mut game = Game::new(true);
     let mut last_drop = get_time();
     let mut last_soft_drop = get_time();
     loop {
@@ -31,6 +31,12 @@ async fn main() {
             if is_key_down(KeyCode::Down) && now - last_soft_drop >= 0.05 {
                 game.move_player_down();
                 last_soft_drop = now;
+            }
+            if is_key_pressed(KeyCode::Up) {
+                game.hard_drop()
+            }
+            if is_key_pressed(KeyCode::G) {
+                game.show_ghost = !game.show_ghost;
             }
             if is_key_pressed(KeyCode::Space) {
                 game.rotate_player();
@@ -51,7 +57,7 @@ async fn main() {
             draw_text(&format!("Score: {}", game.score), 10.0, 60.0, 30.0, BLACK);
             draw_text("Press R to restart", 10.0, 90.0, 30.0, BLACK);
             if is_key_pressed(KeyCode::R) {
-                game = Game::new();
+                game = Game::new(true);
             }
         }
 

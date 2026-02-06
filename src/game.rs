@@ -1,5 +1,8 @@
 use crate::{
-    board::{BOARD_HEIGHT, BOARD_WIDTH, Board, Cell, empty_board, render_board},
+    board::{
+        BOARD_HEIGHT, BOARD_WIDTH, Board, Cell, apply_player_to_board, apply_player_to_board_ghost,
+        empty_board, render_board,
+    },
     piece::{PlayerPiece, rotate_piece_grid_clockwise},
 };
 use macroquad::rand::{gen_range, srand};
@@ -10,18 +13,20 @@ pub struct Game {
     pub player_piece: PlayerPiece,
     pub score: usize,
     pub game_over: bool,
+    pub show_ghost: bool,
 }
 
 const WALL_KICKS: [[isize; 2]; 4] = [[0, 1], [1, 0], [0, -1], [-1, 0]];
 
 impl Game {
-    pub fn new() -> Self {
+    pub fn new(show_ghost: bool) -> Self {
         srand(now() as u64);
         Game {
             board: empty_board(),
             player_piece: Self::spawn_piece(),
             score: 0,
             game_over: false,
+            show_ghost,
         }
     }
 
@@ -30,26 +35,27 @@ impl Game {
     fn spawn_piece() -> PlayerPiece {
         let piece_index = gen_range(0, 7) as usize;
         let color = Self::PIECE_COLORS[gen_range(0, 7) as usize];
-        PlayerPiece::new_random_piece(piece_index, color)
+        PlayerPiece::new_piece(piece_index, color)
     }
 
     pub fn render(&self) {
-        let mut board_with_player: Board = self.board;
-        for dr in 0..4 {
-            for dc in 0..4 {
-                if !self.player_piece.piece_grid[dr as usize][dc as usize] {
-                    continue;
-                }
-                let r = self.player_piece.y + dr;
-                let c = self.player_piece.x + dc;
-                if (0..BOARD_HEIGHT as isize).contains(&r) && (0..BOARD_WIDTH as isize).contains(&c)
-                {
-                    board_with_player[r as usize][c as usize] =
-                        Cell::Filled(self.player_piece.color);
-                }
-            }
+        let mut board = apply_player_to_board(&self.player_piece, &self.board);
+
+        if self.show_ghost {
+            let ghost = self.get_ghost_player();
+            board = apply_player_to_board_ghost(&ghost, &board, 0.3);
         }
-        render_board(board_with_player);
+
+        render_board(board);
+    }
+
+    pub fn get_ghost_player(&self) -> PlayerPiece {
+        let mut ghost = self.player_piece.clone();
+        while !self.player_piece_has_collision(&ghost) {
+            ghost.y += 1;
+        }
+        ghost.y -= 1;
+        ghost
     }
 
     pub fn move_player_left(&mut self) {
@@ -70,6 +76,9 @@ impl Game {
             self.player_piece.y -= 1;
         }
     }
+    pub fn hard_drop(&mut self) {
+        self.player_piece = self.get_ghost_player();
+    }
 
     pub fn rotate_player(&mut self) {
         self.player_piece.piece_grid = rotate_piece_grid_clockwise(self.player_piece.piece_grid);
@@ -89,23 +98,23 @@ impl Game {
     }
 
     fn has_collision(&self) -> bool {
-        self.player_piece
-            .piece_grid
-            .iter()
-            .enumerate()
-            .any(|(dr, row)| {
-                row.iter().enumerate().any(|(dc, filled)| {
-                    if !filled {
-                        return false;
-                    }
-                    let r = self.player_piece.y + dr as isize;
-                    let c = self.player_piece.x + dc as isize;
-                    if r < 0 || r >= BOARD_HEIGHT as isize || c < 0 || c >= BOARD_WIDTH as isize {
-                        return true;
-                    }
-                    self.board[r as usize][c as usize] != Cell::Empty
-                })
+        self.player_piece_has_collision(&self.player_piece)
+    }
+
+    fn player_piece_has_collision(&self, player_piece: &PlayerPiece) -> bool {
+        player_piece.piece_grid.iter().enumerate().any(|(dr, row)| {
+            row.iter().enumerate().any(|(dc, filled)| {
+                if !filled {
+                    return false;
+                }
+                let r = player_piece.y + dr as isize;
+                let c = player_piece.x + dc as isize;
+                if r < 0 || r >= BOARD_HEIGHT as isize || c < 0 || c >= BOARD_WIDTH as isize {
+                    return true;
+                }
+                self.board[r as usize][c as usize] != Cell::Empty
             })
+        })
     }
 
     pub fn check_if_piece_has_terminated(&mut self) {
@@ -116,25 +125,9 @@ impl Game {
             if self.player_piece.y == 0 {
                 self.game_over = true;
             }
-            self.apply_player_to_board();
+            self.board = apply_player_to_board(&self.player_piece, &self.board);
             self.player_piece = Self::spawn_piece();
             self.clear_rows_and_shift_squares_down();
-        }
-    }
-
-    fn apply_player_to_board(&mut self) {
-        for dr in 0..4 {
-            for dc in 0..4 {
-                if !self.player_piece.piece_grid[dr as usize][dc as usize] {
-                    continue;
-                }
-                let r = self.player_piece.y + dr;
-                let c = self.player_piece.x + dc;
-                if (0..BOARD_HEIGHT as isize).contains(&r) && (0..BOARD_WIDTH as isize).contains(&c)
-                {
-                    self.board[r as usize][c as usize] = Cell::Filled(self.player_piece.color);
-                }
-            }
         }
     }
 

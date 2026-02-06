@@ -63,7 +63,7 @@ pub struct PlayerPiece {
 }
 
 impl PlayerPiece {
-    pub fn new_random_piece(piece_index: usize, color: Color) -> Self {
+    pub fn new_piece(piece_index: usize, color: Color) -> Self {
         PlayerPiece {
             piece_grid: PIECE_GRIDS[piece_index],
             color,
